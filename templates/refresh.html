@@ -7,24 +7,20 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
+        <title>Refresh</title>
     </head>
     
     <body>
-        <h1>Login Page</h1>
+        <h1>Refresh Page</h1>
     
         <form method="POST" action="">
-            {{ form.hidden_tag() }}
-            {{ form.username }}
-            {{ form.password }}
-            {{ form.submit }}
+           {{form.hidden_tag()}} 
+           {{form.new_password}}
+           {{form.re_entered_password}}
+           {{form.submit}}
         </form>
         <br>
         <br>
-        <a href="{{ url_for('register') }}">Don't have an account? Sign Up</a>
-        <br>
-        <br>
-        <a href="{{ url_for('refresh') }}">Forgot your password? Click here</a>
     </body>
     
     </html>
