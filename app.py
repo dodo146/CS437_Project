@@ -16,6 +16,7 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+login_manager.refresh_view = 'refresh'
 
 
 @login_manager.user_loader
@@ -63,6 +64,14 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 
+class RefreshForm(FlaskForm):
+    new_password = PasswordField(validators=[
+                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Please enter your new password"})
+    re_entered_password = PasswordField(validators=[
+                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Please enter your new password again"})
+    submit = SubmitField('Refresh')
+
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -105,6 +114,19 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('register.html', form=form)
+
+
+@app.route('/refresh', methods = ["GET", "POST"])
+def refresh():
+    form = RefreshForm()
+    if form.validate_on_submit():
+        if form.new_password.data != form.re_entered_password.data:
+            raise ValidationError("The passwords do not match. Please enter again")
+        else:
+            #TODO userı databaseden bul eğer varsa(hint load_user). sonra onun passwordunu güncelle. sonrada tekrar 
+            #login sayfasına yönlendir
+            pass
+    return render_template("refresh.html", form=form)
 
 
 if __name__ == "__main__":
