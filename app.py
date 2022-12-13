@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect,request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
@@ -80,13 +80,14 @@ def home():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    if request.method == 'GET':
+        return render_template('login.html', form=form)
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
             if bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user)
                 return redirect(url_for('dashboard'))
-    return render_template('login.html', form=form)
 
 
 @app.route('/dashboard', methods=['GET', 'POST'])
@@ -106,6 +107,9 @@ def logout():
 def register():
     form = RegisterForm()
 
+    if request.method == 'GET':
+       return render_template('register.html', form=form) 
+
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data)
         new_user = User(username=form.username.data, password=hashed_password, mail=form.mail.data)
@@ -113,20 +117,23 @@ def register():
         db.session.commit()
         return redirect(url_for('login'))
 
-    return render_template('register.html', form=form)
-
 
 @app.route('/refresh', methods = ["GET", "POST"])
 def refresh():
     form = RefreshForm()
+
+    if request.method == 'GET':
+        return render_template("refresh.html", form=form)
+
     if form.validate_on_submit():
         if form.new_password.data != form.re_entered_password.data:
             raise ValidationError("The passwords do not match. Please enter again")
         else:
             #TODO userı databaseden bul eğer varsa(hint load_user). sonra onun passwordunu güncelle. sonrada tekrar 
             #login sayfasına yönlendir
+            cont_type = request.content_type =  'application/json'
+            req = request.get_json()
             pass
-    return render_template("refresh.html", form=form)
 
 
 if __name__ == "__main__":
