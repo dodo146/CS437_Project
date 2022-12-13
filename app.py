@@ -1,14 +1,20 @@
 from flask import Flask, render_template, url_for, redirect,request
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail, Message
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError
+from models.models import *
 from flask_bcrypt import Bcrypt
+from threading import Thread
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'thisisasecretkey'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = "flask@gmail.com"
+app.config['MAIL_PASSWORD'] = "password"
+mail = Mail(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
@@ -24,53 +30,12 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False, unique=True)
-    password = db.Column(db.String(80), nullable=False)
-    mail = db.Column(db.String(40), nullable=False)
-
 with app.app_context():
     db.create_all()
 
-
-class RegisterForm(FlaskForm):
-    username = StringField(validators=[
-                           InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-
-    password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
-
-    mail = StringField(validators=[
-                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Email"})
-
-    submit = SubmitField('Register')
-
-    def validate_username(self, username):
-        existing_user_username = User.query.filter_by(
-            username=username.data).first()
-        if existing_user_username:
-            raise ValidationError(
-                'That username already exists. Please choose a different one.')
-
-
-class LoginForm(FlaskForm):
-    username = StringField(validators=[
-                           InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-
-    password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
-
-    submit = SubmitField('Login')
-
-
-class RefreshForm(FlaskForm):
-    new_password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Please enter your new password"})
-    re_entered_password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Please enter your new password again"})
-    submit = SubmitField('Refresh')
-
+def send_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
 
 @app.route('/')
 def home():
@@ -120,20 +85,33 @@ def register():
 
 @app.route('/refresh', methods = ["GET", "POST"])
 def refresh():
-    form = RefreshForm()
+    form = EmailForm()
 
     if request.method == 'GET':
         return render_template("refresh.html", form=form)
 
     if form.validate_on_submit():
-        if form.new_password.data != form.re_entered_password.data:
-            raise ValidationError("The passwords do not match. Please enter again")
+        user = User.query.filter_by(mail = form.e_mail.data).first()
+        if user:
+            token = get_reset_token()
+            msg = Message()
+            msg.subject = "Flask App Password Reset"
+            msg.sender = os.getenv('MAIL_USERNAME')
+            msg.recipients = [user.mail]
+            msg.html = render_template('reset_email.html',
+                                user=user, 
+                                token=token)
+            Thread(target=send_email, args=(app, msg)).start()
         else:
-            #TODO userı databaseden bul eğer varsa(hint load_user). sonra onun passwordunu güncelle. sonrada tekrar 
-            #login sayfasına yönlendir
-            cont_type = request.content_type =  'application/json'
-            req = request.get_json()
-            pass
+            return f"There is no account with an e-mail: {form.e_mail.data}!",
+
+@app.route('/password_reset_verified/<token>', methods = ['GET','POST'])
+def reset_verified(token):
+    user = verify_reset_token(token)
+    if not user:
+        print('no user found')
+        return redirect(url_for('login'))
+    
 
 
 if __name__ == "__main__":
