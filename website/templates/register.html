@@ -1,0 +1,15 @@
+{% extends "base.html" %} {% block title %} Home {% endblock%}
+{% block content %}
+<body>
+    <form method="POST" action="">
+        <h1 align="center">Register Page</h1>
+        {{ form.username }}
+        {{ form.password }}
+        {{ form.mail }}
+        {{ form.submit }}
+    </form>
+
+    <a href="{{ url_for('auth.login') }}">Already have an account? Log In</a>
+
+</body>
+{% endblock %}
