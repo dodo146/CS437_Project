@@ -1,10 +1,27 @@
 from flask import Blueprint,request,render_template,redirect,url_for,flash,jsonify
-from .models import UserForm,LoginForm,RegisterForm,User,ForgotForm,ResetForm,ChangeForm
+from .models import LoginForm,RegisterForm,User,ResetForm,ForgotForm,ChangeForm
 from flask_login import login_user, login_required, logout_user
-from . import db
-from main import send_mail
+from . import db,create_token
+from flask_mail import Message
 
 
+def send_mail(user):
+    token = create_token()
+    user.token = token
+    db.session.commit()
+
+    msg = Message(
+                'Hello',
+                sender ='test437odev@gmail.com',
+                recipients = [user.mail]
+               )
+               
+    msg.body = f'''
+        {token}
+    '''
+    from main import mail
+    mail.send(msg)
+    return 'Sent'
 
 auth = Blueprint("auth" , __name__)
 
@@ -58,6 +75,9 @@ def register():
 @auth.route('/forgot', methods=['GET', 'POST'])
 def forgot():
     form = ForgotForm()
+    if request.method == 'GET':
+         return render_template('forgot.html', form=form)
+
     if form.validate_on_submit():
         user = User.query.filter_by(mail=form.mail.data).first()
         if user:
@@ -65,10 +85,15 @@ def forgot():
             return redirect(url_for('token'))  ##########
     return render_template('forgot.html', form=form)
 
+        
+
 @auth.route('/token', methods=['GET', 'POST'])
 def token():
 
     form = ResetForm()
+    if request.method == 'GET':
+         return render_template('reset.html', form=form)
+
     if form.validate_on_submit():
         user = User.query.filter_by(mail=form.mail.data).first()
         
@@ -81,10 +106,12 @@ def token():
 @auth.route('/change_password', methods=['GET', 'POST'])
 def change_password():
     form = ChangeForm()
+    if request.method == 'GET':
+         return render_template('change.html', form=form)
+
     if form.validate_on_submit():
         user = User.query.filter_by(mail=form.mail.data).first()
         user.password = form.password.data
         db.session.commit()
         return redirect(url_for('login'))
     return render_template('change.html', form=form)
-

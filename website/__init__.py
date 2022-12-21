@@ -2,14 +2,13 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from os import path
-from flask_mail import Message
 import random
-
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
-login_manager = LoginManager()
 
+login_manager = LoginManager()
 
 def create_token():
         _first = random.randint(0,9)
@@ -19,6 +18,7 @@ def create_token():
         _fifth = random.randint(0,9)
         _sixth = random.randint(0,9)
         return str(_first)+''+str(_second)+''+str(_third)+''+str(_fourth)+''+str(_fifth)+''+str(_sixth)
+
 
 
 def create_app():
@@ -41,7 +41,6 @@ def create_app():
     app.register_blueprint(views, url_prefix= "/")
     app.register_blueprint(auth, url_prefix= "/")
 
-    from .models import User
     create_database(app)
 
     return app

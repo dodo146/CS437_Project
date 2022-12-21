@@ -26,12 +26,6 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Register')
 
 
-class UserForm(FlaskForm):
-    username = StringField(validators=[
-                           InputRequired(), Length(max=20)], render_kw={"placeholder": "Username"})
-
-    submit = SubmitField('Submit')
-
 class LoginForm(FlaskForm):
     username = StringField(validators=[
                            InputRequired(), Length(max=20)], render_kw={"placeholder": "Username"})
@@ -40,6 +34,7 @@ class LoginForm(FlaskForm):
                              InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
 
     submit = SubmitField('Login')
+
 
 class ChangeForm(FlaskForm):
     mail = StringField(validators=[
