@@ -10,6 +10,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
     mail = db.Column(db.String(40), nullable=False)
+    token = db.Column(db.String(80), nullable=True)
 
 
 class RegisterForm(FlaskForm):
@@ -39,3 +40,24 @@ class LoginForm(FlaskForm):
                              InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
 
     submit = SubmitField('Login')
+
+class ChangeForm(FlaskForm):
+    mail = StringField(validators=[
+                             InputRequired(), Length(min=8, max=30)], render_kw={"placeholder": "Email"})
+
+    password = PasswordField(validators=[
+                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "New Password"})
+    submit = SubmitField('Change')
+
+
+class ForgotForm(FlaskForm):
+    mail = StringField(validators=[
+                             InputRequired(), Length(min=8, max=30)], render_kw={"placeholder": "Email"})
+    submit = SubmitField('Send Mail')
+
+class ResetForm(FlaskForm):
+    mail = StringField(validators=[
+                             InputRequired(), Length(min=8, max=30)], render_kw={"placeholder": "Email"})
+    token = StringField(validators=[
+                             InputRequired(), Length(min=6, max=6)], render_kw={"placeholder": "Token"})
+    submit = SubmitField('Submit')

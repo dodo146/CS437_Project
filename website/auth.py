@@ -1,7 +1,7 @@
-from flask import Blueprint,request,render_template,redirect,url_for,flash
-from .models import UserForm,LoginForm,RegisterForm,User
+from flask import Blueprint,request,render_template,redirect,url_for,flash,jsonify
+from .models import UserForm,LoginForm,RegisterForm,User,ForgotForm,ResetForm,ChangeForm
 from flask_login import login_user, login_required, logout_user
-from . import db
+from . import db,send_mail
 
 
 
@@ -24,7 +24,7 @@ def login():
                 flash("Your password is wrong. Please try again")
                 return redirect(url_for('auth.login'))
         else:
-            return f"There is no user with the username: {form.username.data}",403
+            return jsonify({"message:" : f"There is no user with a username {form.username.data}. Please try again"})
 
 @auth.route('/dashboard', methods=['GET', 'POST'])
 @login_required
@@ -44,30 +44,46 @@ def register():
          return render_template('register.html', form=form)
 
     if form.is_submitted():
-        new_user = User(username=form.username.data, password=form.password.data, mail=form.mail.data)
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect(url_for('auth.login'))
-
-@auth.route('/refresh', methods = ["GET", "POST"])
-def refresh():
-    form = UserForm()
-
-    if request.method == 'GET':
-        return render_template("refresh.html", form=form)
-
-    if form.validate_on_submit():
-        user = User.query.filter_by(mail = form.e_mail.data).first()
-        if user:
-            # token = get_reset_token()
-            # msg = Message()
-            # msg.subject = "Flask App Password Reset"
-            # msg.sender = os.getenv('MAIL_USERNAME')
-            # msg.recipients = [user.mail]
-            # msg.html = render_template('reset_email.html',
-            #                     user=user, 
-            #                     token=token)
-            # Thread(target=send_email, args=(app, msg)).start()
-            pass
+        username = form.username.data
+        check_username = User.query.filter_by(username = username).first()
+        if check_username:
+            return jsonify({"message:" : f"There is already a user with username {form.username.data}. Please try again"})
         else:
-            return f"There is no account with an e-mail: {form.e_mail.data}!"
+            new_user = User(username=form.username.data, password=form.password.data, mail=form.mail.data)
+            db.session.add(new_user)
+            db.session.commit()
+            return redirect(url_for('auth.login'))
+
+@auth.route('/forgot', methods=['GET', 'POST'])
+def forgot():
+    form = ForgotForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(mail=form.mail.data).first()
+        if user:
+            send_mail(user)
+            return redirect(url_for('token'))  ##########
+    return render_template('forgot.html', form=form)
+
+@auth.route('/token', methods=['GET', 'POST'])
+def token():
+
+    form = ResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(mail=form.mail.data).first()
+        
+        if user:
+            if user.token == form.token.data:
+                return redirect(url_for('change_password')) ############## change password   BURA DEĞİŞECEK
+    return render_template('reset.html', form=form)
+
+
+@auth.route('/change_password', methods=['GET', 'POST'])
+def change_password():
+    form = ChangeForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(mail=form.mail.data).first()
+        user.password = form.password.data
+        db.session.commit()
+        return redirect(url_for('login'))
+    return render_template('change.html', form=form)
+
