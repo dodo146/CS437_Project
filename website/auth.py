@@ -82,7 +82,7 @@ def forgot():
         user = User.query.filter_by(mail=form.mail.data).first()
         if user:
             send_mail(user)
-            return redirect(url_for('token'))  ##########
+            return redirect(url_for('auth.token'))  ##########
     return render_template('forgot.html', form=form)
 
         
@@ -99,7 +99,7 @@ def token():
         
         if user:
             if user.token == form.token.data:
-                return redirect(url_for('change_password')) ############## change password   BURA DEĞİŞECEK
+                return redirect(url_for('auth.change_password')) ############## change password   BURA DEĞİŞECEK
     return render_template('reset.html', form=form)
 
 
@@ -109,9 +109,9 @@ def change_password():
     if request.method == 'GET':
          return render_template('change.html', form=form)
 
-    if form.validate_on_submit():
+    if form.is_submitted():
         user = User.query.filter_by(mail=form.mail.data).first()
         user.password = form.password.data
         db.session.commit()
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
     return render_template('change.html', form=form)
