@@ -3,12 +3,30 @@ from .models import LoginForm,RegisterForm,User,ResetForm,ForgotForm,ChangeForm
 from flask_login import login_user, login_required, logout_user
 from . import db,create_token
 from flask_mail import Message
+import time
+from threading import Thread
+
+
+def check_time(user):
+   while True:
+    time.sleep(300)
+    from main import app
+    with app.app_context():
+        all_user = User.query.all()
+        for c_user in all_user:
+                if c_user == user:
+                    if c_user.token != None:
+                        c_user.token = None
+                        db.session.commit()
+    
 
 
 def send_mail(user):
     token = create_token()
     user.token = token
     db.session.commit()
+    x = Thread(target=check_time,daemon=True,args=[user])
+    x.start()
 
     msg = Message(
                 'Hello',
