@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from os import path
 import random
 from flask_migrate import Migrate
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -33,6 +35,7 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'login'
+    limiter = Limiter(app, key_func=get_remote_address)
 
 
     from .views import views
@@ -43,7 +46,7 @@ def create_app():
 
     create_database(app)
 
-    return app
+    return app,limiter
 
 
 def create_database(app):

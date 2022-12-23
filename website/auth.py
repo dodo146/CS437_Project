@@ -104,10 +104,10 @@ def forgot():
     return render_template('forgot.html', form=form)
 
         
-
+from main import limiter
 @auth.route('/token', methods=['GET', 'POST'])
+@limiter.limit('5 per day')
 def token():
-
     form = ResetForm()
     if request.method == 'GET':
          return render_template('reset.html', form=form)
