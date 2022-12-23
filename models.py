@@ -1,16 +1,6 @@
 from flask_wtf import FlaskForm
-from flask_login import UserMixin
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
-from . import db
-
-
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), nullable=False, unique=True)
-    password = db.Column(db.String(80), nullable=False)
-    mail = db.Column(db.String(40), nullable=False)
-    token = db.Column(db.String(80), nullable=True)
 
 
 class RegisterForm(FlaskForm):
