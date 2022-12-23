@@ -37,9 +37,6 @@ class LoginForm(FlaskForm):
 
 
 class ChangeForm(FlaskForm):
-    mail = StringField(validators=[
-                             InputRequired(), Length(min=8, max=30)], render_kw={"placeholder": "Email"})
-
     password = PasswordField(validators=[
                              InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "New Password"})
     submit = SubmitField('Change')
@@ -51,8 +48,6 @@ class ForgotForm(FlaskForm):
     submit = SubmitField('Send Mail')
 
 class ResetForm(FlaskForm):
-    mail = StringField(validators=[
-                             InputRequired(), Length(min=8, max=30)], render_kw={"placeholder": "Email"})
     token = StringField(validators=[
                              InputRequired(), Length(min=6, max=6)], render_kw={"placeholder": "Token"})
     submit = SubmitField('Submit')
