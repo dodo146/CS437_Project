@@ -1,4 +1,4 @@
-from flask import Blueprint,request,render_template,redirect,url_for,flash,jsonify
+from flask import Blueprint,request,render_template,redirect,url_for,flash,jsonify,make_response,request
 from .models import LoginForm,RegisterForm,User,ResetForm,ForgotForm,ChangeForm
 from flask_login import login_user, login_required, logout_user
 from . import db,create_token
@@ -100,7 +100,9 @@ def forgot():
         user = User.query.filter_by(mail=form.mail.data).first()
         if user:
             send_mail(user)
-            return redirect(url_for('auth.token'))  ##########
+            res = make_response(redirect(url_for('auth.token')))
+            res.set_cookie('_mail', user.mail, max_age=None)
+            return res 
     return render_template('forgot.html', form=form)
 
         
@@ -113,11 +115,13 @@ def token():
          return render_template('reset.html', form=form)
 
     if form.validate_on_submit():
-        user = User.query.filter_by(mail=form.mail.data).first()
-        
-        if user:
-            if user.token == form.token.data:
-                return redirect(url_for('auth.change_password')) ############## change password   BURA DEĞİŞECEK
+        user = User.query.filter_by(mail=request.cookies.get('_mail')).first()
+        if user.token == form.token.data:
+            res = make_response("Cookie Removed")
+            res.set_cookie('_mail', user.mail, max_age=0)
+            res = make_response(redirect(url_for('auth.change_password')))
+            res.set_cookie('_mail', user.mail, max_age=None)
+            return res
     return render_template('reset.html', form=form)
 
 
@@ -128,7 +132,9 @@ def change_password():
          return render_template('change.html', form=form)
 
     if form.is_submitted():
-        user = User.query.filter_by(mail=form.mail.data).first()
+        user = User.query.filter_by(mail=request.cookies.get('_mail')).first()
+        res = make_response("Cookie Removed")
+        res.set_cookie('_mail', user.mail, max_age=0)
         user.password = form.password.data
         db.session.commit()
         return redirect(url_for('auth.login'))
