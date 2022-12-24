@@ -180,7 +180,7 @@ def token():
             res = make_response(redirect(url_for('change_password')))
             res.set_cookie('_mail', user.mail, max_age=None)
             return res
-     return render_template('reset.html', form=form)
+    return render_template('reset.html', form=form)
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
@@ -196,7 +196,7 @@ def change_password():
         user.password = form.password.data
         db.session.commit()
         return redirect(url_for('login'))
-     return render_template('change.html', form=form)
+    return render_template('change.html', form=form)
         
 
 
