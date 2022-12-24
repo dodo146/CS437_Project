@@ -91,7 +91,6 @@ class User(db.Model, UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    from models import User
     return User.query.get(int(user_id))
 
 
@@ -156,8 +155,6 @@ def register():
 def forgot():
     from models import ForgotForm
     form = ForgotForm()
-    if request.method == 'GET':
-         return render_template('forgot.html', form=form)
 
     if form.validate_on_submit():
         user = User.query.filter_by(mail=form.mail.data).first()
@@ -172,37 +169,37 @@ def forgot():
 @app.route('/token', methods=['GET', 'POST'])
 @limiter.limit('5 per day')
 def token():
-    
-        from models import ResetForm
-        form = ResetForm()
-        if request.method == 'GET':
-            return render_template('reset.html', form=form)
-        if form.validate_on_submit():
-            user = User.query.filter_by(mail=request.cookies.get('_mail')).first()
-            if user.token == form.token.data:
-                res = make_response("Cookie Removed")
-                res.set_cookie('_mail', user.mail, max_age=0)
-                res = make_response(redirect(url_for('change_password')))
-                res.set_cookie('_mail', user.mail, max_age=None)
-                return res
+    from models import ResetForm
+    form = ResetForm()
+    if request.method == 'GET':
         return render_template('reset.html', form=form)
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(mail=request.cookies.get('_mail')).first()
+        if user.token == form.token.data:
+            res = make_response("Cookie Removed")
+            res.set_cookie('_mail', user.mail, max_age=0)
+            res = make_response(redirect(url_for('change_password')))
+            res.set_cookie('_mail', user.mail, max_age=None)
+            return res
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
 def change_password():
-   
-        from models import ChangeForm
-        form = ChangeForm()
-        if request.method == 'GET':
-            return render_template('change.html', form=form)
-        if form.is_submitted():
-            user = User.query.filter_by(mail=request.cookies.get('_mail')).first()
-            res = make_response("Cookie Removed")
-            res.set_cookie('_mail', user.mail, max_age=0)
-            user.password = form.password.data
-            db.session.commit()
-            return redirect(url_for('login'))
+    
+    from models import ChangeForm
+    form = ChangeForm()
+    if request.method == 'GET':
         return render_template('change.html', form=form)
+
+    if form.is_submitted():
+        user = User.query.filter_by(mail=request.cookies.get('_mail')).first()
+        res = make_response("Cookie Removed")
+        res.set_cookie('_mail', user.mail, max_age=0)
+        user.password = form.password.data
+        db.session.commit()
+        return redirect(url_for('login'))
+        
 
 
 if __name__ == "__main__":
