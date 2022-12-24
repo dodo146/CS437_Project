@@ -172,9 +172,7 @@ def forgot():
 @app.route('/token', methods=['GET', 'POST'])
 @limiter.limit('5 per day')
 def token():
-    if request.referrer != 'http://127.0.0.1:5000/forgot':
-        return redirect(url_for('forgot'))
-    else:
+    
         from models import ResetForm
         form = ResetForm()
         if request.method == 'GET':
@@ -192,9 +190,7 @@ def token():
 
 @app.route('/change_password', methods=['GET', 'POST'])
 def change_password():
-    if request.referrer != 'http://127.0.0.1:5000/token':
-        return redirect(url_for('token'))
-    else:
+   
         from models import ChangeForm
         form = ChangeForm()
         if request.method == 'GET':
