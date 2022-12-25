@@ -4,26 +4,34 @@ from wtforms.validators import InputRequired, Length, ValidationError
 
 
 class RegisterForm(FlaskForm):
-    username = StringField(validators=[
-                           InputRequired(), Length(max=100)], render_kw={"placeholder": "Username"})
+    username = StringField("Username" , validators=[
+                           InputRequired(), Length(max=100)], 
+                           render_kw={"placeholder": "Username",
+                                    "class" : "form-control"})
 
-    password = PasswordField(validators=[
-                             InputRequired(), Length(min=8)], render_kw={"placeholder": "Password"})
+    password = PasswordField("Password" ,validators=[
+                             InputRequired(), Length(min=8)], render_kw={"placeholder": "Password"
+                             ,"class" : "form-control"})
 
-    mail = StringField(validators=[
-                             InputRequired(), Length(min=8)], render_kw={"placeholder": "Email"})
+    mail = StringField("E-mail",validators=[
+                             InputRequired(), Length(min=8)], render_kw={"placeholder": "Email","class" : "form-control"})
 
-    submit = SubmitField('Register')
+    submit = SubmitField('Register',render_kw={"class":"btn btn-pill text-white btn-block btn-primary"})
+
 
 
 class LoginForm(FlaskForm):
-    username = StringField(validators=[
-                           InputRequired(), Length(max=20)], render_kw={"placeholder": "Username"})
+    username = StringField("Username" , validators=[
+                           InputRequired(), Length(max=100)], 
+                           render_kw={"placeholder": "Username",
+                                    "class" : "form-control"})
 
-    password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
 
-    submit = SubmitField('Login')
+    password = PasswordField("Password" ,validators=[
+                             InputRequired(), Length(min=8)], render_kw={"placeholder": "Password"
+                             ,"class" : "form-control"})
+
+    submit = SubmitField('Login',render_kw={"class":"btn btn-pill text-white btn-block btn-primary"})
 
 
 class ChangeForm(FlaskForm):

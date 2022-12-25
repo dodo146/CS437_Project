@@ -4,48 +4,51 @@
 <link rel="stylesheet" href="/static/background.css">
 {% endblock %}
 {% block content %}
-    <section class="vh-100 mw-100 gradient-custom">
-        <div class="container py-5 h-100">
-          <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-              <div class="card bg-dark text-white" style="border-radius: 1rem;">
-                <div class="card-body p-5 text-center">
+<section class="vh-100">
+  <div class="mask d-flex align-items-center h-100 gradient-custom-3">
+    <div class="container h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+          <div class="card" style="border-radius: 15px;">
+            <div class="card-body p-5">
+              <h2 class="text-uppercase text-center mb-5">Log In</h2>
 
-                <form action="" method="post">
-      
-                  <div class="mb-md-5 mt-md-4 pb-5">
-      
-                    <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
-                    <p class="text-white-50 mb-5">Please enter your username and password!</p>
-                    
-                    {{form.hidden_tag()}}
-                    <div class="form-outline form-white mb-4">
-                        {{form.username}}
-
-                    </div>
-      
-                    <div class="form-outline form-white mb-4">
-                        {{form.password}}
-                    </div>
-      
-                    <p class="small mb-5 pb-lg-2"><a class="text-white-50" href="{{url_for('forgot')}}">Forgot password?</a></p>
-    
-                    {{form.submit}}
-      
-                   
-      
-                  </div>
-      
-                  <div>
-                    <p class="mb-0">Don't have an account? <a href= "{{ url_for('register') }}" class="text-white-50 fw-bold">Sign Up</a>
-                    </p>
-                  </div>
+              <form action="" method="post">
                 
-                </form>
+                {{form.hidden_tag()}}
+                <div class="d-flex justify-content-center">
+                    {{form.username}}
                 </div>
-              </div>
+                <br>
+                <div class="d-flex justify-content-center">
+                    {{form.mail}}
+                </div>
+                <br>
+                <div class="d-flex justify-content-center">
+                    {{form.password}}
+                </div>
+
+                <!-- <div class="form-check d-flex justify-content-center mb-5">
+                  <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3cg" />
+                  <label class="form-check-label" for="form2Example3g">
+                    I agree all statements in <a href="#!" class="text-body"><u>Terms of service</u></a>
+                  </label>
+                </div> -->
+                <br>
+                <div class="d-flex justify-content-center">
+                    {{form.submit}}
+                </div>
+
+                <p class="text-center text-muted mt-5 mb-0">Forgot your password? <a href="{{url_for('forgot')}}"
+                    class="fw-bold text-body"><u>Click here</u></a></p>
+
+              </form>
+
             </div>
           </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
