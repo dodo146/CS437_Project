@@ -9,7 +9,7 @@ from flask_limiter.util import get_remote_address
 from flask_mail import Mail,Message
 import time
 from threading import Thread
-from flask_login import login_user, login_required, logout_user,UserMixin
+from flask_login import login_user, login_required, logout_user,UserMixin,current_user
 
 def create_database(app):
     if not path.exists('instance/'+ DB_NAME):
@@ -124,7 +124,7 @@ def login():
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('dashboard.html',current_user = current_user)
 
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required
