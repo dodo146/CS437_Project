@@ -78,7 +78,6 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 create_database(app)
 db.init_app(app)
-limiter = Limiter(app, key_func=get_remote_address)
 mail = Mail(app)
 
 
@@ -167,7 +166,6 @@ def forgot():
 
 
 @app.route('/token', methods=['GET', 'POST'])
-@limiter.limit('5 per day')
 def token():
     from models import ResetForm
     form = ResetForm()
